@@ -1,0 +1,3 @@
+﻿Module PotentialStock
+
+End Module
