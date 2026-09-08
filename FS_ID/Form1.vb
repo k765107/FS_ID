@@ -3,11 +3,128 @@
 
 Public Class Form1
 
+    '========================================================
+    ' 潛力股資料
+    '========================================================
+    Private potentialGroups As New List(Of PotentialGroup)
+    Private fsIDFile As String
+    Private xnameFile As String
+
     Private backupTime As TimeSpan
     Private lastBackupDate As DateTime = DateTime.MinValue
     Private iniFile As String = Path.Combine(Application.StartupPath, "FSSETUP.INI")
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+        Dim folder As String =
+       Application.StartupPath
+
+
+        fsIDFile =
+            Path.Combine(
+                folder,
+                "SYSTEM\01\FS_ID.DAT")
+
+
+        xnameFile =
+            Path.Combine(
+                folder,
+                "XNAME6.STK")
+
+
+        '====================================================
+        ' 檢查 FS_ID.DAT
+        '====================================================
+        If Not File.Exists(fsIDFile) Then
+
+            MessageBox.Show(
+                "找不到 FS_ID.DAT：" &
+                vbCrLf & vbCrLf &
+                fsIDFile,
+                "錯誤",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error)
+
+            Return
+
+        End If
+
+
+        '====================================================
+        ' 檢查 XNAME6.STK
+        '====================================================
+        If Not File.Exists(xnameFile) Then
+
+            MessageBox.Show(
+                "找不到 XNAME6.STK：" &
+                vbCrLf & vbCrLf &
+                xnameFile,
+                "錯誤",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error)
+
+            Return
+
+        End If
+
+
+        '====================================================
+        ' 開始讀取 FS_ID.DAT
+        '====================================================
+        Try
+
+            potentialGroups =
+                LoadPotentialGroups(fsIDFile)
+
+
+            '================================================
+            ' 清空 ListBox1
+            '================================================
+            ListBox1.Items.Clear()
+
+
+            '================================================
+            ' 將潛力股分類放入 ListBox1
+            '================================================
+            For Each group As PotentialGroup _
+                In potentialGroups
+
+                ListBox1.Items.Add(group)
+
+            Next
+
+
+            '================================================
+            ' 如果有資料，自動選第一組
+            '================================================
+            If ListBox1.Items.Count > 0 Then
+
+                ListBox1.SelectedIndex = 0
+
+            End If
+
+
+        Catch ex As Exception
+
+            MessageBox.Show(
+                "讀取 FS_ID.DAT 發生錯誤：" &
+                vbCrLf & vbCrLf &
+                ex.Message,
+                "錯誤",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error)
+
+        End Try
+
+
+
+
+
+
+
+
+
+
 
         Dim iniFile As String =
         Path.Combine(Application.StartupPath, "FSSETUP.INI")
@@ -476,6 +593,53 @@ Public Class Form1
             MessageBoxIcon.Error)
 
         End Try
+
+    End Sub
+
+    Private Sub ListBox1_SelectedIndexChanged(
+    sender As Object,
+    e As EventArgs
+) Handles ListBox1.SelectedIndexChanged
+
+
+        '====================================================
+        ' 清空右邊
+        '====================================================
+        ListBox2.Items.Clear()
+
+
+        If ListBox1.SelectedIndex < 0 Then
+
+            Return
+
+        End If
+
+
+        '====================================================
+        ' 取得目前選取的群組
+        '====================================================
+        Dim group As PotentialGroup =
+        TryCast(
+            ListBox1.SelectedItem,
+            PotentialGroup)
+
+
+        If group Is Nothing Then
+
+            Return
+
+        End If
+
+
+        '====================================================
+        ' 目前只顯示股票代碼
+        '====================================================
+        For Each stockID As String In group.StockIDs
+
+            ListBox2.Items.Add(stockID)
+
+        Next
+
 
     End Sub
 End Class
