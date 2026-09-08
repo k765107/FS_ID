@@ -38,6 +38,8 @@ Partial Class Form1
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.ListBox1 = New System.Windows.Forms.ListBox()
         Me.ListBox2 = New System.Windows.Forms.ListBox()
+        Me.txtGroupName = New System.Windows.Forms.TextBox()
+        Me.btnSaveGroupName = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -187,7 +189,7 @@ Partial Class Form1
         '
         Me.ListBox1.FormattingEnabled = True
         Me.ListBox1.ItemHeight = 12
-        Me.ListBox1.Location = New System.Drawing.Point(375, 158)
+        Me.ListBox1.Location = New System.Drawing.Point(370, 39)
         Me.ListBox1.Name = "ListBox1"
         Me.ListBox1.Size = New System.Drawing.Size(120, 256)
         Me.ListBox1.TabIndex = 22
@@ -196,16 +198,34 @@ Partial Class Form1
         '
         Me.ListBox2.FormattingEnabled = True
         Me.ListBox2.ItemHeight = 12
-        Me.ListBox2.Location = New System.Drawing.Point(518, 158)
+        Me.ListBox2.Location = New System.Drawing.Point(510, 39)
         Me.ListBox2.Name = "ListBox2"
         Me.ListBox2.Size = New System.Drawing.Size(120, 256)
         Me.ListBox2.TabIndex = 23
+        '
+        'txtGroupName
+        '
+        Me.txtGroupName.Location = New System.Drawing.Point(370, 318)
+        Me.txtGroupName.Name = "txtGroupName"
+        Me.txtGroupName.Size = New System.Drawing.Size(100, 22)
+        Me.txtGroupName.TabIndex = 24
+        '
+        'btnSaveGroupName
+        '
+        Me.btnSaveGroupName.Location = New System.Drawing.Point(370, 362)
+        Me.btnSaveGroupName.Name = "btnSaveGroupName"
+        Me.btnSaveGroupName.Size = New System.Drawing.Size(75, 23)
+        Me.btnSaveGroupName.TabIndex = 25
+        Me.btnSaveGroupName.Text = "Button1"
+        Me.btnSaveGroupName.UseVisualStyleBackColor = True
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(800, 450)
+        Me.Controls.Add(Me.btnSaveGroupName)
+        Me.Controls.Add(Me.txtGroupName)
         Me.Controls.Add(Me.ListBox2)
         Me.Controls.Add(Me.ListBox1)
         Me.Controls.Add(Me.GroupBox1)
@@ -214,6 +234,7 @@ Partial Class Form1
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
     Friend WithEvents lblSource As Label
@@ -231,4 +252,6 @@ Partial Class Form1
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents ListBox1 As ListBox
     Friend WithEvents ListBox2 As ListBox
+    Friend WithEvents txtGroupName As TextBox
+    Friend WithEvents btnSaveGroupName As Button
 End Class

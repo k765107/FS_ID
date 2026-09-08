@@ -603,12 +603,14 @@ Public Class Form1
 
 
         '====================================================
-        ' 清空右邊
+        ' 清空右邊股票代號
         '====================================================
         ListBox2.Items.Clear()
 
 
         If ListBox1.SelectedIndex < 0 Then
+
+            txtGroupName.Text = ""
 
             Return
 
@@ -616,7 +618,7 @@ Public Class Form1
 
 
         '====================================================
-        ' 取得目前選取的群組
+        ' 取得目前選取的潛力股群組
         '====================================================
         Dim group As PotentialGroup =
         TryCast(
@@ -626,13 +628,22 @@ Public Class Form1
 
         If group Is Nothing Then
 
+            txtGroupName.Text = ""
+
             Return
 
         End If
 
 
         '====================================================
-        ' 目前只顯示股票代碼
+        ' TextBox 顯示目前群組名稱
+        '====================================================
+        txtGroupName.Text =
+        group.Name
+
+
+        '====================================================
+        ' ListBox2 目前只顯示股票代號
         '====================================================
         For Each stockID As String In group.StockIDs
 
@@ -640,6 +651,152 @@ Public Class Form1
 
         Next
 
+
+    End Sub
+
+    Private Sub btnSaveGroupName_Click(
+    sender As Object,
+    e As EventArgs
+) Handles btnSaveGroupName.Click
+
+
+        '====================================================
+        ' 必須先選擇一組
+        '====================================================
+        If ListBox1.SelectedIndex < 0 Then
+
+            MessageBox.Show(
+            "請先選擇一個潛力股分類。",
+            "提示",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information)
+
+            Return
+
+        End If
+
+
+        '====================================================
+        ' 取得新名稱
+        '====================================================
+        Dim newName As String =
+        txtGroupName.Text.Trim()
+
+
+        If newName = "" Then
+
+            MessageBox.Show(
+            "名稱不能是空白。",
+            "提示",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Warning)
+
+            Return
+
+        End If
+
+
+        '====================================================
+        ' 確認修改
+        '====================================================
+        Dim answer As DialogResult =
+        MessageBox.Show(
+            "確定要將：" &
+            vbCrLf &
+            vbCrLf &
+            ListBox1.SelectedItem.ToString() &
+            vbCrLf &
+            vbCrLf &
+            "修改成：" &
+            vbCrLf &
+            vbCrLf &
+            newName &
+            "？",
+            "修改潛力股名稱",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question)
+
+
+        If answer <> DialogResult.Yes Then
+
+            Return
+
+        End If
+
+
+        Try
+
+            '================================================
+            ' FS_ID.DAT
+            '================================================
+            Dim success As Boolean =
+            UpdatePotentialGroupName(
+                fsIDFile,
+                ListBox1.SelectedIndex,
+                newName)
+
+
+            If success Then
+
+
+                '============================================
+                ' 更新目前記憶體中的名稱
+                '============================================
+                Dim group As PotentialGroup =
+                TryCast(
+                    ListBox1.SelectedItem,
+                    PotentialGroup)
+
+
+                If group IsNot Nothing Then
+
+                    group.Name =
+                    newName
+
+                End If
+
+
+                '============================================
+                ' 讓 ListBox1 重新顯示
+                '============================================
+                Dim selectedIndex As Integer =
+                ListBox1.SelectedIndex
+
+
+                ListBox1.Items(
+                selectedIndex) =
+                group
+
+
+                ListBox1.SelectedIndex =
+                selectedIndex
+
+
+                txtGroupName.Text =
+                newName
+
+
+                MessageBox.Show(
+                "名稱修改完成。",
+                "完成",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information)
+
+            End If
+
+
+        Catch ex As Exception
+
+            MessageBox.Show(
+            "修改名稱失敗：" &
+            vbCrLf &
+            vbCrLf &
+            ex.Message,
+            "錯誤",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error)
+
+        End Try
 
     End Sub
 End Class
