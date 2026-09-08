@@ -654,149 +654,55 @@ Public Class Form1
 
     End Sub
 
-    Private Sub btnSaveGroupName_Click(
-    sender As Object,
-    e As EventArgs
-) Handles btnSaveGroupName.Click
+    Private Sub btnSaveGroupName_Click(sender As Object, e As EventArgs) Handles btnSaveGroupName.Click
 
-
-        '====================================================
-        ' 必須先選擇一組
-        '====================================================
+        ' 沒有選取群組
         If ListBox1.SelectedIndex < 0 Then
+            MessageBox.Show("請先選擇一個群組！")
+            Return
+        End If
+
+        ' 取得目前輸入的名稱
+        Dim newName As String = txtGroupName.Text.Trim()
+
+        ' 如果名稱是空白
+        ' 自動改成「多重潛力股」
+        If String.IsNullOrWhiteSpace(newName) Then
+            newName = "多重潛力股"
+        End If
+
+        ' 寫回 FS_ID.DAT
+        If UpdatePotentialGroupName(
+        fsIDFile,
+        ListBox1.SelectedIndex,
+        newName) Then
+
+            ' 更新目前記憶中的群組名稱
+            Dim group As PotentialGroup =
+            DirectCast(ListBox1.Items(ListBox1.SelectedIndex), PotentialGroup)
+
+            group.Name = newName
+
+            ' TextBox 同步顯示
+            txtGroupName.Text = newName
+
+            ' ListBox1 同步刷新顯示
+            ListBox1.Items(ListBox1.SelectedIndex) = group
 
             MessageBox.Show(
-            "請先選擇一個潛力股分類。",
-            "提示",
+            "名稱修改完成！" & vbCrLf &
+            "名稱：" & newName,
+            "完成",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information)
 
-            Return
-
-        End If
-
-
-        '====================================================
-        ' 取得新名稱
-        '====================================================
-        Dim newName As String =
-        txtGroupName.Text.Trim()
-
-
-        If newName = "" Then
-
+        Else
             MessageBox.Show(
-            "名稱不能是空白。",
-            "提示",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Warning)
-
-            Return
-
-        End If
-
-
-        '====================================================
-        ' 確認修改
-        '====================================================
-        Dim answer As DialogResult =
-        MessageBox.Show(
-            "確定要將：" &
-            vbCrLf &
-            vbCrLf &
-            ListBox1.SelectedItem.ToString() &
-            vbCrLf &
-            vbCrLf &
-            "修改成：" &
-            vbCrLf &
-            vbCrLf &
-            newName &
-            "？",
-            "修改潛力股名稱",
-            MessageBoxButtons.YesNo,
-            MessageBoxIcon.Question)
-
-
-        If answer <> DialogResult.Yes Then
-
-            Return
-
-        End If
-
-
-        Try
-
-            '================================================
-            ' FS_ID.DAT
-            '================================================
-            Dim success As Boolean =
-            UpdatePotentialGroupName(
-                fsIDFile,
-                ListBox1.SelectedIndex,
-                newName)
-
-
-            If success Then
-
-
-                '============================================
-                ' 更新目前記憶體中的名稱
-                '============================================
-                Dim group As PotentialGroup =
-                TryCast(
-                    ListBox1.SelectedItem,
-                    PotentialGroup)
-
-
-                If group IsNot Nothing Then
-
-                    group.Name =
-                    newName
-
-                End If
-
-
-                '============================================
-                ' 讓 ListBox1 重新顯示
-                '============================================
-                Dim selectedIndex As Integer =
-                ListBox1.SelectedIndex
-
-
-                ListBox1.Items(
-                selectedIndex) =
-                group
-
-
-                ListBox1.SelectedIndex =
-                selectedIndex
-
-
-                txtGroupName.Text =
-                newName
-
-
-                MessageBox.Show(
-                "名稱修改完成。",
-                "完成",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information)
-
-            End If
-
-
-        Catch ex As Exception
-
-            MessageBox.Show(
-            "修改名稱失敗：" &
-            vbCrLf &
-            vbCrLf &
-            ex.Message,
+            "名稱修改失敗！",
             "錯誤",
             MessageBoxButtons.OK,
             MessageBoxIcon.Error)
-
-        End Try
+        End If
 
     End Sub
 End Class
