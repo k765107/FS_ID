@@ -1618,4 +1618,130 @@ Module PotentialStock
         Return -1
 
     End Function
+
+    '========================================================
+    ' 清除指定群組的全部股票
+    '
+    ' ★ 重要：
+    ' 不直接修改整個股票資料區
+    '
+    ' 而是重複使用：
+    '
+    ' DeletePotentialStock()
+    '
+    ' 已經驗證成功的「刪除單一個股」功能。
+    '
+    ' 這樣可以確保：
+    '
+    ' ★ 每次只刪一支
+    ' ★ 群組名稱不動
+    ' ★ 其他群組不動
+    ' ★ 後面的名稱資料不動
+    '========================================================
+    Public Function DeletePotentialGroupStocks(
+    fileName As String,
+    groupIndex As Integer) As Boolean
+
+        Try
+
+            '----------------------------------------------------
+            ' 基本檢查
+            '----------------------------------------------------
+            If Not File.Exists(fileName) Then
+                Return False
+            End If
+
+            If groupIndex < 0 OrElse
+           groupIndex > 9 Then
+
+                Return False
+
+            End If
+
+
+            '----------------------------------------------------
+            ' 先讀取目前群組
+            '----------------------------------------------------
+            Dim groups As List(Of PotentialGroup) =
+            LoadPotentialGroups(fileName)
+
+
+            If groups Is Nothing Then
+                Return False
+            End If
+
+
+            If groupIndex >= groups.Count Then
+                Return False
+            End If
+
+
+            Dim group As PotentialGroup =
+            groups(groupIndex)
+
+
+            '----------------------------------------------------
+            ' 沒有股票
+            '----------------------------------------------------
+            If group.StockIDs Is Nothing OrElse
+           group.StockIDs.Count = 0 Then
+
+                Return True
+
+            End If
+
+
+            '----------------------------------------------------
+            ' 記錄股票數量
+            '----------------------------------------------------
+            Dim stockCount As Integer =
+            group.StockIDs.Count
+
+
+            '----------------------------------------------------
+            ' ★ 從最後一支開始刪
+            '
+            ' 為什麼從最後開始？
+            '
+            ' 因為刪除前面的股票後，
+            ' 後面的 Index 會往前移。
+            '
+            ' 從最後往前刪，
+            ' Index 不會影響前面的股票。
+            '----------------------------------------------------
+            For i As Integer =
+            stockCount - 1 To 0 Step -1
+
+
+                '------------------------------------------------
+                ' 使用已經成功測試過的
+                ' 「刪除單一個股」
+                '------------------------------------------------
+                If Not DeletePotentialStock(
+                fileName,
+                groupIndex,
+                i) Then
+
+                    Return False
+
+                End If
+
+
+            Next
+
+
+            '----------------------------------------------------
+            ' 全部成功
+            '----------------------------------------------------
+            Return True
+
+
+        Catch ex As Exception
+
+            Return False
+
+        End Try
+
+    End Function
+
 End Module

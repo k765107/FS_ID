@@ -898,4 +898,182 @@ Public Class Form1
         End Try
 
     End Sub
+
+    '========================================================
+    ' 清除目前群組的全部股票
+    '========================================================
+    Private Sub btnClearGroupStocks_Click(
+    sender As Object,
+    e As EventArgs) Handles btnClearGroupStocks.Click
+
+        '----------------------------------------------------
+        ' 沒有選擇群組
+        '----------------------------------------------------
+        If ListBox1.SelectedIndex < 0 Then
+
+            MessageBox.Show(
+            "請先選擇要清除的群組！",
+            "提示",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Warning)
+
+            Return
+
+        End If
+
+
+        '----------------------------------------------------
+        ' 取得群組 Index
+        '----------------------------------------------------
+        Dim groupIndex As Integer =
+        ListBox1.SelectedIndex
+
+
+        '----------------------------------------------------
+        ' 確認 Index 有效
+        '----------------------------------------------------
+        If groupIndex >= potentialGroups.Count Then
+
+            MessageBox.Show(
+            "找不到指定的群組資料！",
+            "錯誤",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error)
+
+            Return
+
+        End If
+
+
+        '----------------------------------------------------
+        ' 取得目前群組
+        '----------------------------------------------------
+        Dim group As PotentialGroup =
+        potentialGroups(groupIndex)
+
+
+        '----------------------------------------------------
+        ' 取得群組名稱
+        '
+        ' ListBox1 目前放的是名稱文字
+        '----------------------------------------------------
+        Dim groupName As String =
+        ListBox1.Items(groupIndex).ToString()
+
+
+        '----------------------------------------------------
+        ' 如果本來就沒有股票
+        '----------------------------------------------------
+        If group.StockIDs.Count = 0 Then
+
+            MessageBox.Show(
+            "「" & groupName & "」目前沒有股票。",
+            "提示",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information)
+
+            Return
+
+        End If
+
+
+        '----------------------------------------------------
+        ' 確認
+        '----------------------------------------------------
+        Dim result As DialogResult =
+        MessageBox.Show(
+            "確定要清除「" &
+            groupName &
+            "」裡的全部股票嗎？" &
+            vbCrLf &
+            vbCrLf &
+            "股票數量：" &
+            group.StockIDs.Count &
+            " 支" &
+            vbCrLf &
+            vbCrLf &
+            "群組名稱會保留。" &
+            vbCrLf &
+            "只會清除這一組的股票。",
+            "清除群組股票",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question)
+
+
+        If result <> DialogResult.Yes Then
+            Return
+        End If
+
+
+        '----------------------------------------------------
+        ' 執行清除
+        '----------------------------------------------------
+        If DeletePotentialGroupStocks(
+        fsIDFile,
+        groupIndex) Then
+
+
+            '------------------------------------------------
+            ' 更新記憶體資料
+            '------------------------------------------------
+            group.StockIDs.Clear()
+
+
+            '------------------------------------------------
+            ' 清空右側 ListBox2
+            '------------------------------------------------
+            ListBox2.Items.Clear()
+
+
+            '------------------------------------------------
+            ' 左側 ListBox1 不動
+            ' 群組名稱保留
+            '------------------------------------------------
+            ListBox1.SelectedIndex =
+            groupIndex
+
+
+            '------------------------------------------------
+            ' TextBox 群組名稱保留
+            '------------------------------------------------
+            txtGroupName.Text =
+            groupName
+
+
+            '------------------------------------------------
+            ' 完成訊息
+            '------------------------------------------------
+            MessageBox.Show(
+            "清除完成！" &
+            vbCrLf &
+            vbCrLf &
+            "群組：" &
+            groupName &
+            vbCrLf &
+            "原本股票：" &
+            group.StockIDs.Count &
+            vbCrLf &
+            vbCrLf &
+            "全部股票已清除。" &
+            vbCrLf &
+            "群組名稱保留不變。",
+            "完成",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information)
+
+
+        Else
+
+            MessageBox.Show(
+            "清除失敗！" &
+            vbCrLf &
+            vbCrLf &
+            "FS_ID.DAT 沒有被修改。",
+            "錯誤",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error)
+
+        End If
+
+    End Sub
 End Class

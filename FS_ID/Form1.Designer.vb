@@ -41,6 +41,7 @@ Partial Class Form1
         Me.txtGroupName = New System.Windows.Forms.TextBox()
         Me.btnSaveGroupName = New System.Windows.Forms.Button()
         Me.btnDeleteStock = New System.Windows.Forms.Button()
+        Me.btnClearGroupStocks = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -213,27 +214,37 @@ Partial Class Form1
         '
         'btnSaveGroupName
         '
-        Me.btnSaveGroupName.Location = New System.Drawing.Point(370, 362)
+        Me.btnSaveGroupName.Location = New System.Drawing.Point(476, 318)
         Me.btnSaveGroupName.Name = "btnSaveGroupName"
         Me.btnSaveGroupName.Size = New System.Drawing.Size(75, 23)
         Me.btnSaveGroupName.TabIndex = 25
-        Me.btnSaveGroupName.Text = "Button1"
+        Me.btnSaveGroupName.Text = "修改群組名稱"
         Me.btnSaveGroupName.UseVisualStyleBackColor = True
         '
         'btnDeleteStock
         '
-        Me.btnDeleteStock.Location = New System.Drawing.Point(510, 362)
+        Me.btnDeleteStock.Location = New System.Drawing.Point(476, 359)
         Me.btnDeleteStock.Name = "btnDeleteStock"
         Me.btnDeleteStock.Size = New System.Drawing.Size(75, 23)
         Me.btnDeleteStock.TabIndex = 26
-        Me.btnDeleteStock.Text = "btnDeleteStock"
+        Me.btnDeleteStock.Text = "刪除個股"
         Me.btnDeleteStock.UseVisualStyleBackColor = True
+        '
+        'btnClearGroupStocks
+        '
+        Me.btnClearGroupStocks.Location = New System.Drawing.Point(573, 358)
+        Me.btnClearGroupStocks.Name = "btnClearGroupStocks"
+        Me.btnClearGroupStocks.Size = New System.Drawing.Size(91, 23)
+        Me.btnClearGroupStocks.TabIndex = 27
+        Me.btnClearGroupStocks.Text = "清除群組股票"
+        Me.btnClearGroupStocks.UseVisualStyleBackColor = True
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(800, 450)
+        Me.Controls.Add(Me.btnClearGroupStocks)
         Me.Controls.Add(Me.btnDeleteStock)
         Me.Controls.Add(Me.btnSaveGroupName)
         Me.Controls.Add(Me.txtGroupName)
@@ -266,4 +277,5 @@ Partial Class Form1
     Friend WithEvents txtGroupName As TextBox
     Friend WithEvents btnSaveGroupName As Button
     Friend WithEvents btnDeleteStock As Button
+    Friend WithEvents btnClearGroupStocks As Button
 End Class
