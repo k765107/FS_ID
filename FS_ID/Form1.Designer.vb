@@ -195,7 +195,7 @@ Partial Class Form1
         Me.ListBox1.ItemHeight = 12
         Me.ListBox1.Location = New System.Drawing.Point(370, 39)
         Me.ListBox1.Name = "ListBox1"
-        Me.ListBox1.Size = New System.Drawing.Size(120, 256)
+        Me.ListBox1.Size = New System.Drawing.Size(120, 184)
         Me.ListBox1.TabIndex = 22
         '
         'ListBox2
@@ -204,19 +204,19 @@ Partial Class Form1
         Me.ListBox2.ItemHeight = 12
         Me.ListBox2.Location = New System.Drawing.Point(510, 39)
         Me.ListBox2.Name = "ListBox2"
-        Me.ListBox2.Size = New System.Drawing.Size(120, 256)
+        Me.ListBox2.Size = New System.Drawing.Size(154, 376)
         Me.ListBox2.TabIndex = 23
         '
         'txtGroupName
         '
-        Me.txtGroupName.Location = New System.Drawing.Point(370, 318)
+        Me.txtGroupName.Location = New System.Drawing.Point(370, 238)
         Me.txtGroupName.Name = "txtGroupName"
         Me.txtGroupName.Size = New System.Drawing.Size(100, 22)
         Me.txtGroupName.TabIndex = 24
         '
         'btnSaveGroupName
         '
-        Me.btnSaveGroupName.Location = New System.Drawing.Point(476, 318)
+        Me.btnSaveGroupName.Location = New System.Drawing.Point(370, 266)
         Me.btnSaveGroupName.Name = "btnSaveGroupName"
         Me.btnSaveGroupName.Size = New System.Drawing.Size(75, 23)
         Me.btnSaveGroupName.TabIndex = 25
@@ -225,7 +225,7 @@ Partial Class Form1
         '
         'btnDeleteStock
         '
-        Me.btnDeleteStock.Location = New System.Drawing.Point(476, 359)
+        Me.btnDeleteStock.Location = New System.Drawing.Point(672, 39)
         Me.btnDeleteStock.Name = "btnDeleteStock"
         Me.btnDeleteStock.Size = New System.Drawing.Size(75, 23)
         Me.btnDeleteStock.TabIndex = 26
@@ -234,7 +234,7 @@ Partial Class Form1
         '
         'btnClearGroupStocks
         '
-        Me.btnClearGroupStocks.Location = New System.Drawing.Point(573, 358)
+        Me.btnClearGroupStocks.Location = New System.Drawing.Point(370, 308)
         Me.btnClearGroupStocks.Name = "btnClearGroupStocks"
         Me.btnClearGroupStocks.Size = New System.Drawing.Size(91, 23)
         Me.btnClearGroupStocks.TabIndex = 27
@@ -243,15 +243,15 @@ Partial Class Form1
         '
         'txtTestStockID
         '
-        Me.txtTestStockID.Location = New System.Drawing.Point(370, 405)
+        Me.txtTestStockID.Location = New System.Drawing.Point(688, 238)
         Me.txtTestStockID.Name = "txtTestStockID"
-        Me.txtTestStockID.Size = New System.Drawing.Size(100, 22)
+        Me.txtTestStockID.Size = New System.Drawing.Size(79, 22)
         Me.txtTestStockID.TabIndex = 28
         '
         'lblTestStockName
         '
         Me.lblTestStockName.AutoSize = True
-        Me.lblTestStockName.Location = New System.Drawing.Point(494, 405)
+        Me.lblTestStockName.Location = New System.Drawing.Point(710, 358)
         Me.lblTestStockName.Name = "lblTestStockName"
         Me.lblTestStockName.Size = New System.Drawing.Size(37, 12)
         Me.lblTestStockName.TabIndex = 29

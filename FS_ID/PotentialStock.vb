@@ -40,7 +40,26 @@ Module PotentialStock
 
     End Class
 
+    '========================================================
+    ' 股票資料
+    '========================================================
+    Public Class StockInfo
 
+        Public Property ID As String
+
+        Public Property Name As String
+
+        Public Overrides Function ToString() As String
+
+            If String.IsNullOrWhiteSpace(Name) Then
+                Return ID
+            End If
+
+            Return ID & "  " & Name
+
+        End Function
+
+    End Class
     '========================================================
     ' 讀取 FS_ID.DAT
     '
@@ -1761,124 +1780,193 @@ Module PotentialStock
                 Return ""
             End If
 
-
-            '====================================================
-            ' 讀取 XNAME6.STK
-            '====================================================
             Dim data() As Byte =
             File.ReadAllBytes(fileName)
 
             Dim encoding As Encoding =
             Encoding.GetEncoding(950)
 
-
-            '====================================================
-            ' 股票代號
-            '====================================================
             Dim idBytes() As Byte =
             Encoding.ASCII.GetBytes(stockID)
 
-
             '====================================================
-            ' 找股票代號第一次出現的位置
-            '====================================================
-            Dim pos As Integer =
-            FindBytes(
-                data,
-                idBytes,
-                0)
-
-            If pos < 0 Then
-                Return ""
-            End If
-
-
-            '====================================================
-            ' XNAME6.STK 有兩種格式
+            ' XNAME6.STK 裡同一個股票代號可能出現很多次
             '
-            ' 4碼：
-            '
-            ' 2330
-            ' 00 00 00
-            ' 台積電
-            '
-            ' 股名 = 代號位置 + 7
-            '
-            '
-            ' 5～6碼：
-            '
-            ' 00907
-            ' 00
-            ' 00907
-            ' 00
-            ' 00 00
-            ' [3 Bytes]
-            ' 永豐優息存股
-            '
-            ' 股名 = 代號位置 + 18
+            ' 所以不能只找第一筆
             '====================================================
 
-            Dim nameStart As Integer
+            Dim searchPos As Integer = 0
 
-            If stockID.Length = 4 Then
+            While searchPos < data.Length
 
-                nameStart =
-                pos + 7
+                Dim pos As Integer =
+                FindBytes(
+                    data,
+                    idBytes,
+                    searchPos)
 
-            Else
-
-                nameStart =
-                pos + 18
-
-            End If
-
-
-            '====================================================
-            ' 確認位置有效
-            '====================================================
-            If nameStart >= data.Length Then
-                Return ""
-            End If
+                If pos < 0 Then
+                    Exit While
+                End If
 
 
-            '====================================================
-            ' 找股名結尾
-            '====================================================
-            Dim nameEnd As Integer = -1
+                '================================================
+                ' 確認股票代號不是其他代號的一部分
+                '
+                ' 例如：
+                '
+                ' 查 6208
+                '
+                ' 不能誤抓：
+                ' 006208
+                '================================================
 
-            For i As Integer =
-            nameStart To data.Length - 1
+                Dim validID As Boolean = True
 
-                If data(i) = &H0 Then
+                If pos > 0 Then
 
-                    nameEnd = i
-                    Exit For
+                    Dim previousByte As Byte =
+                    data(pos - 1)
+
+                    If previousByte >= &H30 AndAlso
+                   previousByte <= &H39 Then
+
+                        validID = False
+
+                    End If
 
                 End If
 
-            Next
+
+                If validID Then
+
+                    If pos + idBytes.Length < data.Length Then
+
+                        Dim nextByte As Byte =
+                        data(pos + idBytes.Length)
+
+                        If nextByte >= &H30 AndAlso
+                       nextByte <= &H39 Then
+
+                            validID = False
+
+                        End If
+
+                    End If
+
+                End If
 
 
-            If nameEnd <= nameStart Then
-                Return ""
-            End If
+                If validID Then
+
+                    '================================================
+                    ' 4 碼股票
+                    '
+                    ' XNAME6.STK 正式名稱使用 +18
+                    '
+                    ' 例如：
+                    '
+                    ' 2330 → 台積電
+                    ' 4991 → 環宇-KY
+                    ' 6143 → 振  曜
+                    ' 6208 → 日  揚
+                    '================================================
+
+                    Dim nameStart As Integer
+
+                    If stockID.Length = 4 Then
+
+                        nameStart = pos + 18
+
+                    Else
+
+                        '================================================
+                        ' 5 碼 / 6 碼股票
+                        '
+                        ' 目前 XNAME6.STK 的正式名稱也是 +18
+                        '================================================
+
+                        nameStart = pos + 18
+
+                    End If
 
 
-            '====================================================
-            ' 取得股名
-            '====================================================
-            Dim nameLength As Integer =
-            nameEnd - nameStart
+                    If nameStart < data.Length Then
 
-            Dim stockName As String =
-            encoding.GetString(
-                data,
-                nameStart,
-                nameLength)
+                        Dim nameEnd As Integer = -1
+
+                        For i As Integer =
+                        nameStart To data.Length - 1
+
+                            If data(i) = &H0 Then
+
+                                nameEnd = i
+
+                                Exit For
+
+                            End If
+
+                        Next
 
 
-            Return stockName.Trim()
+                        If nameEnd > nameStart Then
 
+                            Dim nameLength As Integer =
+                            nameEnd - nameStart
+
+                            Dim stockName As String =
+                            encoding.GetString(
+                                data,
+                                nameStart,
+                                nameLength)
+
+
+                            '================================================
+                            ' 清除 XNAME6.STK 固定欄位產生的空白
+                            '
+                            ' 例如：
+                            '
+                            ' 振  曜 → 振曜
+                            ' 日  揚 → 日揚
+                            '================================================
+
+                            stockName =
+                            stockName.Replace(" ", "")
+
+                            stockName =
+                            stockName.Trim()
+
+
+                            '================================================
+                            ' 基本檢查
+                            '
+                            ' 避免抓到空白或明顯不是股票名稱的資料
+                            '================================================
+
+                            If stockName <> "" Then
+
+                                Return stockName
+
+                            End If
+
+                        End If
+
+                    End If
+
+                End If
+
+
+                '================================================
+                ' 繼續搜尋下一個相同股票代號
+                '================================================
+
+                searchPos =
+                pos + idBytes.Length
+
+            End While
+
+
+            Return ""
 
         Catch ex As Exception
 

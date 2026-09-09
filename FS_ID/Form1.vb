@@ -647,7 +647,32 @@ Public Class Form1
         '====================================================
         For Each stockID As String In group.StockIDs
 
-            ListBox2.Items.Add(stockID)
+            Dim stockName As String =
+        FindStockNameTest(
+            xnameFile,
+            stockID)
+
+            '====================================================
+            ' XNAME6.STK 找不到股票名稱
+            '
+            ' 代表這筆可能是舊股票 / 無效代號
+            ' 不顯示在 ListBox2
+            '
+            ' 例如：
+            '
+            ' 2867 → 找不到股名 → 不顯示
+            '====================================================
+            If String.IsNullOrWhiteSpace(stockName) Then
+                Continue For
+            End If
+
+
+            Dim stockInfo As New StockInfo With {
+        .ID = stockID,
+        .Name = stockName
+    }
+
+            ListBox2.Items.Add(stockInfo)
 
         Next
 
