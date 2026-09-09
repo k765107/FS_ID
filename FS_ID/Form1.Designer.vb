@@ -23,6 +23,7 @@ Partial Class Form1
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Me.lblSource = New System.Windows.Forms.Label()
         Me.txtSource = New System.Windows.Forms.TextBox()
         Me.lblBackup = New System.Windows.Forms.Label()
@@ -303,6 +304,7 @@ Partial Class Form1
         Me.ClientSize = New System.Drawing.Size(823, 450)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.GroupBox2)
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "Form1"
         Me.Text = "潛力股設定"
         Me.GroupBox1.ResumeLayout(False)
