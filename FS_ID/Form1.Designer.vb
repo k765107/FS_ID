@@ -42,9 +42,10 @@ Partial Class Form1
         Me.btnSaveGroupName = New System.Windows.Forms.Button()
         Me.btnDeleteStock = New System.Windows.Forms.Button()
         Me.btnClearGroupStocks = New System.Windows.Forms.Button()
-        Me.txtTestStockID = New System.Windows.Forms.TextBox()
-        Me.lblTestStockName = New System.Windows.Forms.Label()
+        Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.lblStockCount = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
+        Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
         '
         'lblSource
@@ -191,92 +192,102 @@ Partial Class Form1
         '
         'ListBox1
         '
+        Me.ListBox1.Font = New System.Drawing.Font("新細明體", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(136, Byte))
         Me.ListBox1.FormattingEnabled = True
-        Me.ListBox1.ItemHeight = 12
-        Me.ListBox1.Location = New System.Drawing.Point(370, 39)
+        Me.ListBox1.ItemHeight = 16
+        Me.ListBox1.Location = New System.Drawing.Point(14, 27)
         Me.ListBox1.Name = "ListBox1"
-        Me.ListBox1.Size = New System.Drawing.Size(120, 184)
+        Me.ListBox1.Size = New System.Drawing.Size(144, 180)
         Me.ListBox1.TabIndex = 22
         '
         'ListBox2
         '
+        Me.ListBox2.Font = New System.Drawing.Font("新細明體", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(136, Byte))
         Me.ListBox2.FormattingEnabled = True
-        Me.ListBox2.ItemHeight = 12
-        Me.ListBox2.Location = New System.Drawing.Point(510, 39)
+        Me.ListBox2.ItemHeight = 16
+        Me.ListBox2.Location = New System.Drawing.Point(168, 24)
         Me.ListBox2.Name = "ListBox2"
-        Me.ListBox2.Size = New System.Drawing.Size(154, 376)
+        Me.ListBox2.Size = New System.Drawing.Size(214, 372)
         Me.ListBox2.TabIndex = 23
         '
         'txtGroupName
         '
-        Me.txtGroupName.Location = New System.Drawing.Point(370, 238)
+        Me.txtGroupName.Font = New System.Drawing.Font("新細明體", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(136, Byte))
+        Me.txtGroupName.Location = New System.Drawing.Point(14, 221)
         Me.txtGroupName.Name = "txtGroupName"
-        Me.txtGroupName.Size = New System.Drawing.Size(100, 22)
+        Me.txtGroupName.Size = New System.Drawing.Size(144, 27)
         Me.txtGroupName.TabIndex = 24
         '
         'btnSaveGroupName
         '
-        Me.btnSaveGroupName.Location = New System.Drawing.Point(370, 266)
+        Me.btnSaveGroupName.Font = New System.Drawing.Font("新細明體", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(136, Byte))
+        Me.btnSaveGroupName.Location = New System.Drawing.Point(18, 259)
         Me.btnSaveGroupName.Name = "btnSaveGroupName"
-        Me.btnSaveGroupName.Size = New System.Drawing.Size(75, 23)
+        Me.btnSaveGroupName.Size = New System.Drawing.Size(121, 35)
         Me.btnSaveGroupName.TabIndex = 25
         Me.btnSaveGroupName.Text = "修改群組名稱"
         Me.btnSaveGroupName.UseVisualStyleBackColor = True
         '
         'btnDeleteStock
         '
-        Me.btnDeleteStock.Location = New System.Drawing.Point(672, 39)
+        Me.btnDeleteStock.Font = New System.Drawing.Font("新細明體", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(136, Byte))
+        Me.btnDeleteStock.Location = New System.Drawing.Point(388, 27)
         Me.btnDeleteStock.Name = "btnDeleteStock"
-        Me.btnDeleteStock.Size = New System.Drawing.Size(75, 23)
+        Me.btnDeleteStock.Size = New System.Drawing.Size(86, 35)
         Me.btnDeleteStock.TabIndex = 26
         Me.btnDeleteStock.Text = "刪除個股"
         Me.btnDeleteStock.UseVisualStyleBackColor = True
         '
         'btnClearGroupStocks
         '
-        Me.btnClearGroupStocks.Location = New System.Drawing.Point(370, 308)
+        Me.btnClearGroupStocks.Font = New System.Drawing.Font("新細明體", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(136, Byte))
+        Me.btnClearGroupStocks.Location = New System.Drawing.Point(18, 300)
         Me.btnClearGroupStocks.Name = "btnClearGroupStocks"
-        Me.btnClearGroupStocks.Size = New System.Drawing.Size(91, 23)
+        Me.btnClearGroupStocks.Size = New System.Drawing.Size(121, 34)
         Me.btnClearGroupStocks.TabIndex = 27
         Me.btnClearGroupStocks.Text = "清除群組股票"
         Me.btnClearGroupStocks.UseVisualStyleBackColor = True
         '
-        'txtTestStockID
+        'GroupBox2
         '
-        Me.txtTestStockID.Location = New System.Drawing.Point(688, 238)
-        Me.txtTestStockID.Name = "txtTestStockID"
-        Me.txtTestStockID.Size = New System.Drawing.Size(79, 22)
-        Me.txtTestStockID.TabIndex = 28
+        Me.GroupBox2.Controls.Add(Me.lblStockCount)
+        Me.GroupBox2.Controls.Add(Me.btnClearGroupStocks)
+        Me.GroupBox2.Controls.Add(Me.btnDeleteStock)
+        Me.GroupBox2.Controls.Add(Me.btnSaveGroupName)
+        Me.GroupBox2.Controls.Add(Me.txtGroupName)
+        Me.GroupBox2.Controls.Add(Me.ListBox2)
+        Me.GroupBox2.Controls.Add(Me.ListBox1)
+        Me.GroupBox2.Font = New System.Drawing.Font("新細明體", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(136, Byte))
+        Me.GroupBox2.Location = New System.Drawing.Point(331, 12)
+        Me.GroupBox2.Name = "GroupBox2"
+        Me.GroupBox2.Size = New System.Drawing.Size(480, 425)
+        Me.GroupBox2.TabIndex = 30
+        Me.GroupBox2.TabStop = False
+        Me.GroupBox2.Text = "潛力股設定"
         '
-        'lblTestStockName
+        'lblStockCount
         '
-        Me.lblTestStockName.AutoSize = True
-        Me.lblTestStockName.Location = New System.Drawing.Point(710, 358)
-        Me.lblTestStockName.Name = "lblTestStockName"
-        Me.lblTestStockName.Size = New System.Drawing.Size(37, 12)
-        Me.lblTestStockName.TabIndex = 29
-        Me.lblTestStockName.Text = "Label1"
+        Me.lblStockCount.AutoSize = True
+        Me.lblStockCount.Location = New System.Drawing.Point(15, 346)
+        Me.lblStockCount.Name = "lblStockCount"
+        Me.lblStockCount.Size = New System.Drawing.Size(99, 16)
+        Me.lblStockCount.TabIndex = 28
+        Me.lblStockCount.Text = "潛力股：0 檔"
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(800, 450)
-        Me.Controls.Add(Me.lblTestStockName)
-        Me.Controls.Add(Me.txtTestStockID)
-        Me.Controls.Add(Me.btnClearGroupStocks)
-        Me.Controls.Add(Me.btnDeleteStock)
-        Me.Controls.Add(Me.btnSaveGroupName)
-        Me.Controls.Add(Me.txtGroupName)
-        Me.Controls.Add(Me.ListBox2)
-        Me.Controls.Add(Me.ListBox1)
+        Me.ClientSize = New System.Drawing.Size(823, 450)
         Me.Controls.Add(Me.GroupBox1)
+        Me.Controls.Add(Me.GroupBox2)
         Me.Name = "Form1"
         Me.Text = "潛力股設定"
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
+        Me.GroupBox2.ResumeLayout(False)
+        Me.GroupBox2.PerformLayout()
         Me.ResumeLayout(False)
-        Me.PerformLayout()
 
     End Sub
     Friend WithEvents lblSource As Label
@@ -298,6 +309,6 @@ Partial Class Form1
     Friend WithEvents btnSaveGroupName As Button
     Friend WithEvents btnDeleteStock As Button
     Friend WithEvents btnClearGroupStocks As Button
-    Friend WithEvents txtTestStockID As TextBox
-    Friend WithEvents lblTestStockName As Label
+    Friend WithEvents GroupBox2 As GroupBox
+    Friend WithEvents lblStockCount As Label
 End Class

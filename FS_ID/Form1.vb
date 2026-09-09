@@ -16,6 +16,10 @@ Public Class Form1
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
+        '群組名稱最多 8 個字
+        txtGroupName.MaxLength = 8
+
+
         Dim folder As String =
        Application.StartupPath
 
@@ -677,6 +681,11 @@ Public Class Form1
         Next
 
 
+        lblStockCount.Text =
+    "潛力股：" &
+    ListBox2.Items.Count.ToString() &
+    " 檔"
+
     End Sub
 
     Private Sub btnSaveGroupName_Click(sender As Object, e As EventArgs) Handles btnSaveGroupName.Click
@@ -1103,42 +1112,6 @@ Public Class Form1
     End Sub
 
 
-    Private Sub txtTestStockID_TextChanged(
-    sender As Object,
-    e As EventArgs
-) Handles txtTestStockID.TextChanged
 
-        Dim stockID As String =
-            txtTestStockID.Text.Trim()
-
-        If stockID = "" Then
-
-            lblTestStockName.Text =
-                "尚未輸入"
-
-            Return
-
-        End If
-
-
-        Dim stockName As String =
-            FindStockNameTest(
-                xnameFile,
-                stockID)
-
-
-        If stockName = "" Then
-
-            lblTestStockName.Text =
-                "找不到股名"
-
-        Else
-
-            lblTestStockName.Text =
-                stockName
-
-        End If
-
-    End Sub
 
 End Class
