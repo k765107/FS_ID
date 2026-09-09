@@ -42,6 +42,8 @@ Partial Class Form1
         Me.btnSaveGroupName = New System.Windows.Forms.Button()
         Me.btnDeleteStock = New System.Windows.Forms.Button()
         Me.btnClearGroupStocks = New System.Windows.Forms.Button()
+        Me.txtTestStockID = New System.Windows.Forms.TextBox()
+        Me.lblTestStockName = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -239,11 +241,29 @@ Partial Class Form1
         Me.btnClearGroupStocks.Text = "清除群組股票"
         Me.btnClearGroupStocks.UseVisualStyleBackColor = True
         '
+        'txtTestStockID
+        '
+        Me.txtTestStockID.Location = New System.Drawing.Point(370, 405)
+        Me.txtTestStockID.Name = "txtTestStockID"
+        Me.txtTestStockID.Size = New System.Drawing.Size(100, 22)
+        Me.txtTestStockID.TabIndex = 28
+        '
+        'lblTestStockName
+        '
+        Me.lblTestStockName.AutoSize = True
+        Me.lblTestStockName.Location = New System.Drawing.Point(494, 405)
+        Me.lblTestStockName.Name = "lblTestStockName"
+        Me.lblTestStockName.Size = New System.Drawing.Size(37, 12)
+        Me.lblTestStockName.TabIndex = 29
+        Me.lblTestStockName.Text = "Label1"
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(800, 450)
+        Me.Controls.Add(Me.lblTestStockName)
+        Me.Controls.Add(Me.txtTestStockID)
         Me.Controls.Add(Me.btnClearGroupStocks)
         Me.Controls.Add(Me.btnDeleteStock)
         Me.Controls.Add(Me.btnSaveGroupName)
@@ -278,4 +298,6 @@ Partial Class Form1
     Friend WithEvents btnSaveGroupName As Button
     Friend WithEvents btnDeleteStock As Button
     Friend WithEvents btnClearGroupStocks As Button
+    Friend WithEvents txtTestStockID As TextBox
+    Friend WithEvents lblTestStockName As Label
 End Class

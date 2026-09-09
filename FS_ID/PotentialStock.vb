@@ -1744,4 +1744,148 @@ Module PotentialStock
 
     End Function
 
+
+    Public Function FindStockNameTest(
+    fileName As String,
+    stockID As String) As String
+
+        Try
+
+            If Not File.Exists(fileName) Then
+                Return ""
+            End If
+
+            stockID = stockID.Trim().ToUpper()
+
+            If stockID = "" Then
+                Return ""
+            End If
+
+
+            '====================================================
+            ' 讀取 XNAME6.STK
+            '====================================================
+            Dim data() As Byte =
+            File.ReadAllBytes(fileName)
+
+            Dim encoding As Encoding =
+            Encoding.GetEncoding(950)
+
+
+            '====================================================
+            ' 股票代號
+            '====================================================
+            Dim idBytes() As Byte =
+            Encoding.ASCII.GetBytes(stockID)
+
+
+            '====================================================
+            ' 找股票代號第一次出現的位置
+            '====================================================
+            Dim pos As Integer =
+            FindBytes(
+                data,
+                idBytes,
+                0)
+
+            If pos < 0 Then
+                Return ""
+            End If
+
+
+            '====================================================
+            ' XNAME6.STK 有兩種格式
+            '
+            ' 4碼：
+            '
+            ' 2330
+            ' 00 00 00
+            ' 台積電
+            '
+            ' 股名 = 代號位置 + 7
+            '
+            '
+            ' 5～6碼：
+            '
+            ' 00907
+            ' 00
+            ' 00907
+            ' 00
+            ' 00 00
+            ' [3 Bytes]
+            ' 永豐優息存股
+            '
+            ' 股名 = 代號位置 + 18
+            '====================================================
+
+            Dim nameStart As Integer
+
+            If stockID.Length = 4 Then
+
+                nameStart =
+                pos + 7
+
+            Else
+
+                nameStart =
+                pos + 18
+
+            End If
+
+
+            '====================================================
+            ' 確認位置有效
+            '====================================================
+            If nameStart >= data.Length Then
+                Return ""
+            End If
+
+
+            '====================================================
+            ' 找股名結尾
+            '====================================================
+            Dim nameEnd As Integer = -1
+
+            For i As Integer =
+            nameStart To data.Length - 1
+
+                If data(i) = &H0 Then
+
+                    nameEnd = i
+                    Exit For
+
+                End If
+
+            Next
+
+
+            If nameEnd <= nameStart Then
+                Return ""
+            End If
+
+
+            '====================================================
+            ' 取得股名
+            '====================================================
+            Dim nameLength As Integer =
+            nameEnd - nameStart
+
+            Dim stockName As String =
+            encoding.GetString(
+                data,
+                nameStart,
+                nameLength)
+
+
+            Return stockName.Trim()
+
+
+        Catch ex As Exception
+
+            Return ""
+
+        End Try
+
+    End Function
+
 End Module

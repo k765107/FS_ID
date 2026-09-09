@@ -1076,4 +1076,44 @@ Public Class Form1
         End If
 
     End Sub
+
+
+    Private Sub txtTestStockID_TextChanged(
+    sender As Object,
+    e As EventArgs
+) Handles txtTestStockID.TextChanged
+
+        Dim stockID As String =
+            txtTestStockID.Text.Trim()
+
+        If stockID = "" Then
+
+            lblTestStockName.Text =
+                "尚未輸入"
+
+            Return
+
+        End If
+
+
+        Dim stockName As String =
+            FindStockNameTest(
+                xnameFile,
+                stockID)
+
+
+        If stockName = "" Then
+
+            lblTestStockName.Text =
+                "找不到股名"
+
+        Else
+
+            lblTestStockName.Text =
+                stockName
+
+        End If
+
+    End Sub
+
 End Class
