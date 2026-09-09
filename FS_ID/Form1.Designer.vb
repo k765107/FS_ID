@@ -40,6 +40,7 @@ Partial Class Form1
         Me.ListBox2 = New System.Windows.Forms.ListBox()
         Me.txtGroupName = New System.Windows.Forms.TextBox()
         Me.btnSaveGroupName = New System.Windows.Forms.Button()
+        Me.btnDeleteStock = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -219,11 +220,21 @@ Partial Class Form1
         Me.btnSaveGroupName.Text = "Button1"
         Me.btnSaveGroupName.UseVisualStyleBackColor = True
         '
+        'btnDeleteStock
+        '
+        Me.btnDeleteStock.Location = New System.Drawing.Point(510, 362)
+        Me.btnDeleteStock.Name = "btnDeleteStock"
+        Me.btnDeleteStock.Size = New System.Drawing.Size(75, 23)
+        Me.btnDeleteStock.TabIndex = 26
+        Me.btnDeleteStock.Text = "btnDeleteStock"
+        Me.btnDeleteStock.UseVisualStyleBackColor = True
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(800, 450)
+        Me.Controls.Add(Me.btnDeleteStock)
         Me.Controls.Add(Me.btnSaveGroupName)
         Me.Controls.Add(Me.txtGroupName)
         Me.Controls.Add(Me.ListBox2)
@@ -254,4 +265,5 @@ Partial Class Form1
     Friend WithEvents ListBox2 As ListBox
     Friend WithEvents txtGroupName As TextBox
     Friend WithEvents btnSaveGroupName As Button
+    Friend WithEvents btnDeleteStock As Button
 End Class

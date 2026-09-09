@@ -1182,4 +1182,440 @@ Module PotentialStock
 
     End Function
 
+
+
+    '========================================================
+    ' 刪除指定群組中的「單一股票」
+    '
+    ' groupIndex = 群組 Index
+    ' stockIndex = ListBox2 / StockIDs 的 Index
+    '
+    ' ★ 只刪除一檔股票
+    ' ★ 群組名稱不變
+    ' ★ 其他股票不變
+    ' ★ 其他群組不變
+    ' ★ 股票數量 - 1
+    '========================================================
+    Public Function DeletePotentialStock(
+        fileName As String,
+        groupIndex As Integer,
+        stockIndex As Integer) As Boolean
+
+        Try
+
+            If Not File.Exists(fileName) Then
+                Return False
+            End If
+
+            If groupIndex < 0 OrElse groupIndex > 9 Then
+                Return False
+            End If
+
+            If stockIndex < 0 Then
+                Return False
+            End If
+
+
+            '====================================================
+            ' 讀取 FS_ID.DAT
+            '====================================================
+            Dim data() As Byte =
+                File.ReadAllBytes(fileName)
+
+
+            '====================================================
+            ' 找出 10 個 FS_STK 群組
+            '
+            ' 01 02 74 62 01
+            '====================================================
+            Dim headers As New List(Of Integer)
+
+            Dim searchPos As Integer = 0
+
+            Dim groupMarker() As Byte = {
+                &H1,
+                &H2,
+                &H74,
+                &H62,
+                &H1
+            }
+
+
+            Do
+
+                Dim pos As Integer =
+                    FindBytes(
+                        data,
+                        groupMarker,
+                        searchPos)
+
+                If pos < 0 Then
+                    Exit Do
+                End If
+
+                headers.Add(pos)
+
+                searchPos =
+                    pos + groupMarker.Length
+
+            Loop
+
+
+            '====================================================
+            ' 必須至少有 10 組
+            '====================================================
+            If headers.Count < 10 Then
+                Return False
+            End If
+
+
+            '====================================================
+            ' 取得指定群組
+            '====================================================
+            Dim groupStart As Integer =
+                headers(groupIndex)
+
+
+            '====================================================
+            ' 取得群組結束位置
+            '====================================================
+            Dim groupEnd As Integer
+
+            If groupIndex < 9 Then
+
+                groupEnd =
+                    headers(groupIndex + 1)
+
+            Else
+
+                groupEnd =
+                    data.Length
+
+            End If
+
+
+            '====================================================
+            ' 找股票數量
+            '
+            ' 01 01 01 [數量]
+            '====================================================
+            Dim countMarker() As Byte = {
+                &H1,
+                &H1,
+                &H1
+            }
+
+
+            Dim countPos As Integer =
+                FindBytesRange(
+                    data,
+                    countMarker,
+                    groupStart,
+                    groupEnd)
+
+
+            If countPos < 0 Then
+                Return False
+            End If
+
+
+            Dim oldCount As Integer =
+                data(countPos + 3)
+
+
+            '====================================================
+            ' 確認股票 Index
+            '====================================================
+            If stockIndex >= oldCount Then
+                Return False
+            End If
+
+
+            If oldCount <= 0 Then
+                Return False
+            End If
+
+
+            '====================================================
+            ' 找股票資料開始
+            '
+            ' 01 00
+            '====================================================
+            Dim stockStartMarker() As Byte = {
+                &H1,
+                &H0
+            }
+
+
+            Dim stockStart As Integer =
+                FindBytesRange(
+                    data,
+                    stockStartMarker,
+                    countPos,
+                    groupEnd)
+
+
+            If stockStart < 0 Then
+                Return False
+            End If
+
+
+            stockStart += 2
+
+
+            '====================================================
+            ' 找股票資料結束
+            '
+            ' 01 02 63 65
+            '====================================================
+            Dim stockEndMarker() As Byte = {
+                &H1,
+                &H2,
+                &H63,
+                &H65
+            }
+
+
+            Dim stockEnd As Integer =
+                FindBytesRange(
+                    data,
+                    stockEndMarker,
+                    stockStart,
+                    groupEnd)
+
+
+            If stockEnd < 0 Then
+                Return False
+            End If
+
+
+            '====================================================
+            ' 找第 stockIndex 檔股票
+            '
+            ' 每筆格式：
+            '
+            ' 01
+            ' 長度
+            ' 股票代號
+            '
+            ' 例如：
+            '
+            ' 01 06 00632R
+            '====================================================
+            Dim currentPos As Integer =
+                stockStart
+
+
+            Dim targetStart As Integer = -1
+            Dim targetEnd As Integer = -1
+
+
+            For i As Integer = 0 To oldCount - 1
+
+                If currentPos + 2 > stockEnd Then
+                    Return False
+                End If
+
+
+                If data(currentPos) <> &H1 Then
+                    Return False
+                End If
+
+
+                Dim stockLength As Integer =
+                    data(currentPos + 1)
+
+
+                Dim recordEnd As Integer =
+                    currentPos + 2 + stockLength
+
+
+                If recordEnd > stockEnd Then
+                    Return False
+                End If
+
+
+                '--------------------------------------------
+                ' 找到指定股票
+                '--------------------------------------------
+                If i = stockIndex Then
+
+                    targetStart =
+                        currentPos
+
+                    targetEnd =
+                        recordEnd
+
+                    Exit For
+
+                End If
+
+
+                currentPos =
+                    recordEnd
+
+            Next
+
+
+            '====================================================
+            ' 沒找到
+            '====================================================
+            If targetStart < 0 OrElse
+               targetEnd <= targetStart Then
+
+                Return False
+
+            End If
+
+
+            '====================================================
+            ' 股票數量 - 1
+            '====================================================
+            data(countPos + 3) =
+                CByte(oldCount - 1)
+
+
+            '====================================================
+            ' 建立新的檔案
+            '
+            ' 只移除 targetStart ～ targetEnd
+            '====================================================
+            Dim newData As New List(Of Byte)
+
+
+            '----------------------------------------------------
+            ' 被刪除股票之前
+            '----------------------------------------------------
+            For i As Integer = 0 To targetStart - 1
+
+                newData.Add(
+                    data(i))
+
+            Next
+
+
+            '----------------------------------------------------
+            ' 被刪除股票之後
+            '----------------------------------------------------
+            For i As Integer =
+                targetEnd To data.Length - 1
+
+                newData.Add(
+                    data(i))
+
+            Next
+
+
+            '====================================================
+            ' 暫存檔
+            '====================================================
+            Dim tempFile As String =
+                fileName & ".tmp"
+
+
+            File.WriteAllBytes(
+                tempFile,
+                newData.ToArray())
+
+
+            '====================================================
+            ' 替換原始檔
+            '====================================================
+            File.Delete(fileName)
+
+            File.Move(
+                tempFile,
+                fileName)
+
+
+            Return True
+
+
+        Catch
+
+            Return False
+
+        End Try
+
+    End Function
+
+
+    '========================================================
+    ' FindBytesRange
+    '
+    ' 在指定範圍內搜尋 Byte 陣列
+    '
+    ' startIndex = 開始位置
+    ' endPos     = 結束位置
+    '
+    ' 找到 → 回傳位置
+    ' 找不到 → 回傳 -1
+    '========================================================
+    Private Function FindBytesRange(
+        source() As Byte,
+        search() As Byte,
+        startIndex As Integer,
+        endPos As Integer) As Integer
+
+        If source Is Nothing Then
+            Return -1
+        End If
+
+        If search Is Nothing Then
+            Return -1
+        End If
+
+        If search.Length = 0 Then
+            Return -1
+        End If
+
+        If search.Length > source.Length Then
+            Return -1
+        End If
+
+        If startIndex < 0 Then
+            startIndex = 0
+        End If
+
+        If endPos > source.Length Then
+            endPos = source.Length
+        End If
+
+        If endPos < startIndex Then
+            Return -1
+        End If
+
+        If endPos - startIndex < search.Length Then
+            Return -1
+        End If
+
+
+        For i As Integer =
+            startIndex To endPos - search.Length
+
+            Dim found As Boolean = True
+
+            For j As Integer =
+                0 To search.Length - 1
+
+                If source(i + j) <> search(j) Then
+
+                    found = False
+                    Exit For
+
+                End If
+
+            Next
+
+
+            If found Then
+                Return i
+            End If
+
+        Next
+
+
+        Return -1
+
+    End Function
 End Module

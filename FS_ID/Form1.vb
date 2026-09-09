@@ -705,4 +705,197 @@ Public Class Form1
         End If
 
     End Sub
+
+    '========================================================
+    ' 刪除目前選取的單一股票
+    '========================================================
+    Private Sub btnDeleteStock_Click(
+    sender As Object,
+    e As EventArgs
+) Handles btnDeleteStock.Click
+
+
+        '====================================================
+        ' 必須先選擇群組
+        '====================================================
+        If ListBox1.SelectedIndex < 0 Then
+
+            MessageBox.Show(
+            "請先選擇一個群組！",
+            "提示",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Warning)
+
+            Return
+
+        End If
+
+
+        '====================================================
+        ' 必須先選擇股票
+        '====================================================
+        If ListBox2.SelectedIndex < 0 Then
+
+            MessageBox.Show(
+            "請先選擇要刪除的股票！",
+            "提示",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Warning)
+
+            Return
+
+        End If
+
+
+        '====================================================
+        ' 取得群組 Index
+        '====================================================
+        Dim groupIndex As Integer =
+        ListBox1.SelectedIndex
+
+
+        '====================================================
+        ' 取得股票 Index
+        '====================================================
+        Dim stockIndex As Integer =
+        ListBox2.SelectedIndex
+
+
+        '====================================================
+        ' 確認資料存在
+        '====================================================
+        If groupIndex >= potentialGroups.Count Then
+            Return
+        End If
+
+
+        Dim group As PotentialGroup =
+        potentialGroups(groupIndex)
+
+
+        If stockIndex >= group.StockIDs.Count Then
+            Return
+        End If
+
+
+        '====================================================
+        ' 取得股票代號
+        '====================================================
+        Dim stockID As String =
+        group.StockIDs(stockIndex)
+
+
+        '====================================================
+        ' 確認刪除
+        '====================================================
+        Dim result As DialogResult =
+        MessageBox.Show(
+            "確定要刪除這一檔股票嗎？" &
+            vbCrLf & vbCrLf &
+            "群組：" &
+            ListBox1.Items(groupIndex).ToString() &
+            vbCrLf &
+            "股票代號：" &
+            stockID &
+            vbCrLf & vbCrLf &
+            "⚠ 這個動作會直接修改 FS_ID.DAT。",
+            "確認刪除個股",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning)
+
+
+        If result <> DialogResult.Yes Then
+            Return
+        End If
+
+
+        '====================================================
+        ' 執行刪除
+        '====================================================
+        Try
+
+            Dim success As Boolean =
+            DeletePotentialStock(
+                fsIDFile,
+                groupIndex,
+                stockIndex)
+
+
+            If Not success Then
+
+                MessageBox.Show(
+                "刪除股票失敗！" &
+                vbCrLf & vbCrLf &
+                "FS_ID.DAT 沒有被更新。",
+                "錯誤",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error)
+
+                Return
+
+            End If
+
+
+            '================================================
+            ' 更新記憶體
+            '================================================
+            group.StockIDs.RemoveAt(stockIndex)
+
+
+            '================================================
+            ' 更新 ListBox2
+            '================================================
+            ListBox2.Items.RemoveAt(stockIndex)
+
+
+            '================================================
+            ' 如果刪除後還有股票
+            ' 就選擇適當的一筆
+            '================================================
+            If ListBox2.Items.Count > 0 Then
+
+                If stockIndex >= ListBox2.Items.Count Then
+
+                    ListBox2.SelectedIndex =
+                    ListBox2.Items.Count - 1
+
+                Else
+
+                    ListBox2.SelectedIndex =
+                    stockIndex
+
+                End If
+
+            End If
+
+
+            '================================================
+            ' 完成
+            '================================================
+            MessageBox.Show(
+            "刪除完成！" &
+            vbCrLf & vbCrLf &
+            "群組：" &
+            ListBox1.Items(groupIndex).ToString() &
+            vbCrLf &
+            "股票：" &
+            stockID,
+            "完成",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information)
+
+
+        Catch ex As Exception
+
+            MessageBox.Show(
+            "刪除股票時發生錯誤！" &
+            vbCrLf & vbCrLf &
+            ex.Message,
+            "錯誤",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error)
+
+        End Try
+
+    End Sub
 End Class
