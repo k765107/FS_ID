@@ -36,6 +36,7 @@ Partial Class Form1
         Me.lstBackup = New System.Windows.Forms.ListBox()
         Me.timerBackup = New System.Windows.Forms.Timer(Me.components)
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.btnDeleteBackup = New System.Windows.Forms.Button()
         Me.ListBox1 = New System.Windows.Forms.ListBox()
         Me.ListBox2 = New System.Windows.Forms.ListBox()
         Me.txtGroupName = New System.Windows.Forms.TextBox()
@@ -44,6 +45,7 @@ Partial Class Form1
         Me.btnClearGroupStocks = New System.Windows.Forms.Button()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.lblStockCount = New System.Windows.Forms.Label()
+        Me.btnDeleteOldBackup = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
@@ -171,6 +173,8 @@ Partial Class Form1
         '
         'GroupBox1
         '
+        Me.GroupBox1.Controls.Add(Me.btnDeleteOldBackup)
+        Me.GroupBox1.Controls.Add(Me.btnDeleteBackup)
         Me.GroupBox1.Controls.Add(Me.btnRestore)
         Me.GroupBox1.Controls.Add(Me.lstBackup)
         Me.GroupBox1.Controls.Add(Me.btnBackupNow)
@@ -189,6 +193,15 @@ Partial Class Form1
         Me.GroupBox1.TabIndex = 21
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "潛力股備份"
+        '
+        'btnDeleteBackup
+        '
+        Me.btnDeleteBackup.Location = New System.Drawing.Point(141, 327)
+        Me.btnDeleteBackup.Name = "btnDeleteBackup"
+        Me.btnDeleteBackup.Size = New System.Drawing.Size(86, 35)
+        Me.btnDeleteBackup.TabIndex = 21
+        Me.btnDeleteBackup.Text = "刪除備份"
+        Me.btnDeleteBackup.UseVisualStyleBackColor = True
         '
         'ListBox1
         '
@@ -274,6 +287,15 @@ Partial Class Form1
         Me.lblStockCount.TabIndex = 28
         Me.lblStockCount.Text = "潛力股：0 檔"
         '
+        'btnDeleteOldBackup
+        '
+        Me.btnDeleteOldBackup.Location = New System.Drawing.Point(142, 369)
+        Me.btnDeleteOldBackup.Name = "btnDeleteOldBackup"
+        Me.btnDeleteOldBackup.Size = New System.Drawing.Size(145, 37)
+        Me.btnDeleteOldBackup.TabIndex = 22
+        Me.btnDeleteOldBackup.Text = "清除3個月外備份"
+        Me.btnDeleteOldBackup.UseVisualStyleBackColor = True
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
@@ -311,4 +333,6 @@ Partial Class Form1
     Friend WithEvents btnClearGroupStocks As Button
     Friend WithEvents GroupBox2 As GroupBox
     Friend WithEvents lblStockCount As Label
+    Friend WithEvents btnDeleteBackup As Button
+    Friend WithEvents btnDeleteOldBackup As Button
 End Class

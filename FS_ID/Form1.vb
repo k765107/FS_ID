@@ -293,7 +293,13 @@ Public Class Form1
 
 
     Private Sub lstBackup_SelectedIndexChanged(sender As Object, e As EventArgs) Handles lstBackup.SelectedIndexChanged
-        btnRestore.Enabled = (lstBackup.SelectedIndex >= 0)
+        Dim hasSelection As Boolean =
+        lstBackup.SelectedIndex >= 0 AndAlso
+        lstBackup.SelectedItem IsNot Nothing AndAlso
+        lstBackup.SelectedItem.ToString() <> "目前沒有備份資料"
+
+        btnRestore.Enabled = hasSelection
+        btnDeleteBackup.Enabled = hasSelection
     End Sub
 
     Private Sub btnSaveTime_Click(sender As Object, e As EventArgs) Handles btnSaveTime.Click
@@ -429,9 +435,7 @@ Public Class Form1
             '========================================
             ' 顯示成功訊息
             '========================================
-            lstBackup.Items.Insert(
-                0,
-                DateTime.Now.ToString("yyyy年M月d日"))
+            LoadBackupList()
 
             MessageBox.Show(
                 "備份完成！" & vbCrLf & vbCrLf &
@@ -1112,6 +1116,360 @@ Public Class Form1
     End Sub
 
 
+    Private Sub btnDeleteBackup_Click(sender As Object, e As EventArgs) Handles btnDeleteBackup.Click
+
+        '========================================
+        ' 確認是否有選擇備份
+        '========================================
+
+        If lstBackup.SelectedIndex < 0 OrElse
+           lstBackup.SelectedItem Is Nothing Then
+
+            MessageBox.Show(
+                "請先選擇要刪除的備份日期。",
+                "提示",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
+
+            Exit Sub
+
+        End If
 
 
+        Try
+
+            '========================================
+            ' 取得選取的日期
+            '
+            ' 例如：
+            ' 2026年9月8日
+            '========================================
+
+            Dim selectedText As String =
+                lstBackup.SelectedItem.ToString()
+
+
+            Dim backupDate As DateTime
+
+
+            If Not DateTime.TryParseExact(
+                selectedText,
+                "yyyy年M月d日",
+                Nothing,
+                Globalization.DateTimeStyles.None,
+                backupDate) Then
+
+                MessageBox.Show(
+                    "無法辨識選取的備份日期。",
+                    "刪除失敗",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error)
+
+                Exit Sub
+
+            End If
+
+
+            '========================================
+            ' 程式所在資料夾
+            ' 例如：
+            ' D:\XGVS
+            '========================================
+
+            Dim programFolder As String =
+                Application.StartupPath
+
+
+            '========================================
+            ' 備份資料夾
+            '
+            ' D:\XGVS
+            '      ↓
+            ' D:\
+            '      ↓
+            ' D:\FS_BAK
+            '========================================
+
+            Dim parentFolder As DirectoryInfo =
+                Directory.GetParent(programFolder)
+
+
+            Dim backupFolder As String =
+                Path.Combine(
+                    parentFolder.FullName,
+                    "FS_BAK")
+
+
+            '========================================
+            ' 組合實際備份檔案
+            '
+            ' 例如：
+            '
+            ' D:\FS_BAK\20260908FS_ID.DAT
+            '========================================
+
+            Dim backupFile As String =
+                Path.Combine(
+                    backupFolder,
+                    backupDate.ToString("yyyyMMdd") &
+                    "FS_ID.DAT")
+
+
+            '========================================
+            ' 確認檔案存在
+            '========================================
+
+            If Not File.Exists(backupFile) Then
+
+                MessageBox.Show(
+                    "找不到備份檔案：" &
+                    vbCrLf & vbCrLf &
+                    backupFile,
+                    "刪除失敗",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error)
+
+                Exit Sub
+
+            End If
+
+
+            '========================================
+            ' 刪除前再次確認
+            '========================================
+
+            Dim result As DialogResult =
+                MessageBox.Show(
+                    "確定要刪除以下備份嗎？" &
+                    vbCrLf & vbCrLf &
+                    backupDate.ToString("yyyy年M月d日") &
+                    vbCrLf & vbCrLf &
+                    "刪除後將無法使用這份備份還原。",
+                    "確認刪除備份",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning)
+
+
+            If result <> DialogResult.Yes Then
+                Exit Sub
+            End If
+
+
+            '========================================
+            ' 刪除備份檔
+            '========================================
+
+            File.Delete(backupFile)
+
+
+            '========================================
+            ' 重新讀取備份清單
+            '========================================
+
+            LoadBackupList()
+
+
+            '========================================
+            ' 停用按鈕
+            '========================================
+
+            btnRestore.Enabled = False
+            btnDeleteBackup.Enabled = False
+
+
+            '========================================
+            ' 顯示完成訊息
+            '========================================
+
+            MessageBox.Show(
+                "備份已刪除！" &
+                vbCrLf & vbCrLf &
+                backupDate.ToString("yyyy年M月d日"),
+                "刪除完成",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information)
+
+
+        Catch ex As Exception
+
+            MessageBox.Show(
+                "刪除備份失敗！" &
+                vbCrLf & vbCrLf &
+                ex.Message,
+                "錯誤",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error)
+
+        End Try
+
+    End Sub
+
+    Private Sub btnDeleteOldBackup_Click(
+    sender As Object,
+    e As EventArgs) Handles btnDeleteOldBackup.Click
+
+        Try
+
+            '========================================
+            ' 備份資料夾
+            ' D:\FS_BAK
+            '========================================
+
+            Dim programFolder As String =
+            Application.StartupPath
+
+            Dim parentFolder As DirectoryInfo =
+            Directory.GetParent(programFolder)
+
+            Dim backupFolder As String =
+            Path.Combine(
+                parentFolder.FullName,
+                "FS_BAK")
+
+
+            '========================================
+            ' 確認備份資料夾存在
+            '========================================
+
+            If Not Directory.Exists(backupFolder) Then
+
+                MessageBox.Show(
+                "目前沒有備份資料夾。",
+                "提示",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information)
+
+                Exit Sub
+
+            End If
+
+
+            '========================================
+            ' 三個月以前的日期
+            '========================================
+
+            Dim cutoffDate As DateTime =
+            DateTime.Today.AddMonths(-3)
+
+
+            '========================================
+            ' 找出所有 FS_ID.DAT 備份
+            '========================================
+
+            Dim files() As String =
+            Directory.GetFiles(
+                backupFolder,
+                "*FS_ID.DAT")
+
+
+            Dim deleteCount As Integer = 0
+
+
+            '========================================
+            ' 一個一個檢查
+            '========================================
+
+            For Each file As String In files
+
+                Dim fileName As String =
+                Path.GetFileName(file)
+
+
+                '====================================
+                ' 檔名格式：
+                '
+                ' 20260908FS_ID.DAT
+                '
+                ' 前 8 碼是日期
+                '====================================
+
+                If fileName.Length >= 17 Then
+
+                    Dim dateText As String =
+                    fileName.Substring(0, 8)
+
+
+                    Dim backupDate As DateTime
+
+
+                    If DateTime.TryParseExact(
+                    dateText,
+                    "yyyyMMdd",
+                    Nothing,
+                    Globalization.DateTimeStyles.None,
+                    backupDate) Then
+
+
+                        '================================
+                        ' 超過三個月
+                        '================================
+
+                        If backupDate.Date < cutoffDate.Date Then
+
+                            System.IO.File.Delete(file)
+
+                            deleteCount += 1
+
+                        End If
+
+                    End If
+
+                End If
+
+            Next
+
+
+            '========================================
+            ' 重新載入備份清單
+            '========================================
+
+            LoadBackupList()
+
+
+            btnRestore.Enabled = False
+            btnDeleteBackup.Enabled = False
+
+
+            '========================================
+            ' 顯示結果
+            '========================================
+
+            If deleteCount = 0 Then
+
+                MessageBox.Show(
+                "沒有超過 3 個月的備份需要刪除。",
+                "清除完成",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information)
+
+            Else
+
+                MessageBox.Show(
+                "已刪除 " &
+                deleteCount.ToString() &
+                " 個超過 3 個月的備份。" &
+                vbCrLf & vbCrLf &
+                "保留日期：" &
+                cutoffDate.ToString("yyyy年M月d日") &
+                " 以後",
+                "清除完成",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information)
+
+            End If
+
+
+        Catch ex As Exception
+
+            MessageBox.Show(
+            "清除舊備份失敗！" &
+            vbCrLf & vbCrLf &
+            ex.Message,
+            "錯誤",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error)
+
+        End Try
+
+    End Sub
 End Class
