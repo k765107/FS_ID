@@ -2,7 +2,7 @@
 
 
 Public Class Form1
-
+    Private lastAutoBackupDate As DateTime = DateTime.MinValue
     '========================================================
     ' 潛力股資料
     '========================================================
@@ -176,22 +176,24 @@ Public Class Form1
         backupTime = dtBackupTime.Value.TimeOfDay
     End Sub
 
-    Private Sub timerBackup_Tick(sender As Object, e As EventArgs) Handles timerBackup.Tick
+    Private Sub timerBackup_Tick(
+    sender As Object,
+    e As EventArgs) Handles timerBackup.Tick
 
-        Dim now As DateTime = DateTime.Now
+        Dim nowTime As DateTime = DateTime.Now
 
-        '目前時間是否已經到達設定的備份時間
-        If now.TimeOfDay >= backupTime Then
+        '========================================
+        ' 到達設定的備份時間
+        ' 而且今天還沒有自動備份過
+        '========================================
+        If nowTime.TimeOfDay >= backupTime AndAlso
+       lastAutoBackupDate.Date <> nowTime.Date Then
 
-            '今天還沒有備份
-            If lastBackupDate.Date <> now.Date Then
+            '先記錄今天已經執行
+            lastAutoBackupDate = nowTime.Date
 
-                BackupFile()
-
-                '記錄今天已經備份
-                lastBackupDate = now.Date
-
-            End If
+            '自動備份，不顯示訊息
+            BackupFile(False)
 
         End If
 
@@ -344,14 +346,12 @@ Public Class Form1
 
 
 
-    Private Sub BackupFile()
+    Private Sub BackupFile(Optional ByVal showMessage As Boolean = True)
 
         Try
 
             '========================================
             ' 程式所在資料夾
-            ' 例如：
-            ' D:\XGVS
             '========================================
             Dim programFolder As String = Application.StartupPath
 
@@ -359,35 +359,30 @@ Public Class Form1
             ' 原始檔案
             '========================================
             Dim sourceFile As String =
-                Path.Combine(programFolder, "SYSTEM\01\FS_ID.DAT")
+            Path.Combine(programFolder, "SYSTEM\01\FS_ID.DAT")
 
             '========================================
             ' 備份資料夾
-            ' 程式所在資料夾的上一層
-            '
-            ' D:\XGVS
-            '     ↓
-            ' D:\
-            '     ↓
-            ' D:\FS_BAK
             '========================================
             Dim parentFolder As DirectoryInfo =
-                Directory.GetParent(programFolder)
+            Directory.GetParent(programFolder)
 
             Dim backupFolder As String =
-                Path.Combine(parentFolder.FullName, "FS_BAK")
+            Path.Combine(parentFolder.FullName, "FS_BAK")
 
             '========================================
             ' 確認原始檔案存在
             '========================================
             If Not File.Exists(sourceFile) Then
 
-                MessageBox.Show(
+                If showMessage Then
+                    MessageBox.Show(
                     "找不到原始檔案：" & vbCrLf &
                     sourceFile,
                     "備份失敗",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error)
+                End If
 
                 Exit Sub
 
@@ -402,56 +397,57 @@ Public Class Form1
 
             '========================================
             ' 取得今天日期
-            '
-            ' 例如：
-            ' 2026/09/08
-            '
-            ' 變成：
-            ' 20260908
             '========================================
             Dim today As String =
-                DateTime.Now.ToString("yyyyMMdd")
+            DateTime.Now.ToString("yyyyMMdd")
 
             '========================================
             ' 建立備份檔名
-            '
-            ' 20260908FS_ID.DAT
             '========================================
             Dim backupFile As String =
-                Path.Combine(
-                    backupFolder,
-                    today & "FS_ID.DAT")
+            Path.Combine(
+                backupFolder,
+                today & "FS_ID.DAT")
 
             '========================================
             ' 執行備份
-            '
-            ' True = 如果今天已經有備份，就覆蓋
             '========================================
             File.Copy(
-                sourceFile,
-                backupFile,
-                True)
+            sourceFile,
+            backupFile,
+            True)
 
             '========================================
-            ' 顯示成功訊息
+            ' 重新整理備份清單
             '========================================
             LoadBackupList()
 
-            MessageBox.Show(
+            '========================================
+            ' 只有手動備份才顯示訊息
+            '========================================
+            If showMessage Then
+
+                MessageBox.Show(
                 "備份完成！" & vbCrLf & vbCrLf &
                 backupFile,
                 "備份成功",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information)
 
+            End If
+
         Catch ex As Exception
 
-            MessageBox.Show(
+            If showMessage Then
+
+                MessageBox.Show(
                 "備份失敗！" & vbCrLf & vbCrLf &
                 ex.Message,
                 "錯誤",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error)
+
+            End If
 
         End Try
 
@@ -579,6 +575,9 @@ Public Class Form1
             backupFile,
             sourceFile,
             True)
+
+            '重新整理潛力股清單
+            RefreshPotentialStockList()
 
             MessageBox.Show(
             "還原完成！" & vbCrLf & vbCrLf &
@@ -1470,6 +1469,37 @@ Public Class Form1
             MessageBoxIcon.Error)
 
         End Try
+
+    End Sub
+
+
+    Private Sub RefreshPotentialStockList()
+
+        Dim selectedGroupIndex As Integer =
+            ListBox1.SelectedIndex
+
+        '重新載入 ListBox1
+        ListBox1.Items.Clear()
+        ListBox2.Items.Clear()
+
+        Dim groups As List(Of PotentialGroup) =
+            LoadPotentialGroups(fsIDFile)
+
+        For Each group As PotentialGroup In groups
+            ListBox1.Items.Add(group)
+        Next
+
+        '恢復原本選取的群組
+        If selectedGroupIndex >= 0 AndAlso
+           selectedGroupIndex < ListBox1.Items.Count Then
+
+            ListBox1.SelectedIndex = selectedGroupIndex
+
+        ElseIf ListBox1.Items.Count > 0 Then
+
+            ListBox1.SelectedIndex = 0
+
+        End If
 
     End Sub
 End Class
