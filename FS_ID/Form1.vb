@@ -33,7 +33,7 @@ Public Class Form1
         xnameFile =
             Path.Combine(
                 folder,
-                "XNAME6.STK")
+                "XNAME8.STK")
 
 
         '====================================================
@@ -55,12 +55,12 @@ Public Class Form1
 
 
         '====================================================
-        ' 檢查 XNAME6.STK
+        ' 檢查 XNAME8.STK
         '====================================================
         If Not File.Exists(xnameFile) Then
 
             MessageBox.Show(
-                "找不到 XNAME6.STK：" &
+                "找不到 XNAME8.STK：" &
                 vbCrLf & vbCrLf &
                 xnameFile,
                 "錯誤",
@@ -660,7 +660,7 @@ Public Class Form1
             stockID)
 
             '====================================================
-            ' XNAME6.STK 找不到股票名稱
+            ' XNAME8.STK 找不到股票名稱
             '
             ' 代表這筆可能是舊股票 / 無效代號
             ' 不顯示在 ListBox2
@@ -746,10 +746,7 @@ Public Class Form1
     '========================================================
     ' 刪除目前選取的單一股票
     '========================================================
-    Private Sub btnDeleteStock_Click(
-    sender As Object,
-    e As EventArgs
-) Handles btnDeleteStock.Click
+    Private Sub btnDeleteStock_Click(sender As Object, e As EventArgs) Handles btnDeleteStock.Click
 
 
         '====================================================

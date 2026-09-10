@@ -583,54 +583,212 @@ Module PotentialStock
     ' A4 40 A4 47 A4 54 A5 7C
     ' A4 AD A4 BB A4 43 A4 4B
     '========================================================
+    '========================================================
+    ' 從 FS_ID.DAT 讀取真正的潛力股名稱
+    '
+    ' ★ 不再固定使用第一個 01 02 tb 62
+    ' ★ 自動尋找真正的「名稱資料區」
+    ' ★ FS_STK.DAT / FS_STK01.dat ... 都會跳過
+    ' ★ 支援 0 組、1 組、5 組、10 組
+    '
+    ' 名稱資料格式：
+    '
+    ' 01 02 74 62 01
+    ' [長度]
+    ' [名稱]
+    '
+    ' 例如：
+    '
+    ' 01 0A
+    ' 多重潛力股
+    '
+    '========================================================
+    '========================================================
+    ' 從 FS_ID.DAT 讀取真正的潛力股名稱
+    '
+    ' ★ 支援 0 組、1 組、5 組、10 組
+    ' ★ 自動跳過 FS_STK.DAT
+    ' ★ 自動找到真正的名稱區
+    '
+    ' FS_ID.DAT 結構：
+    '
+    ' 01 02 74 62 01
+    ' 0A
+    ' FS_STK.DAT
+    ' ...
+    '
+    ' 01 02 74 62 01
+    ' 0E
+    ' 多重潛力股
+    ' ...
+    '
+    '========================================================
     Public Function LoadPotentialGroupNames(
-        fileName As String) As List(Of String)
-
+    fileName As String) As List(Of String)
 
         Dim result As New List(Of String)
 
+        Try
 
-        If Not File.Exists(fileName) Then
+            If Not File.Exists(fileName) Then
+                Return result
+            End If
 
-            Return result
-
-        End If
-
-
-        Dim data() As Byte =
+            Dim data() As Byte =
             File.ReadAllBytes(fileName)
 
+            Dim encoding As Encoding =
+            Encoding.GetEncoding(950)
 
-        '====================================================
-        ' 找名稱區域
-        '
-        ' 01 02 tb
-        '====================================================
-        Dim tbPos As Integer =
-            FindBytes(
-                data,
-                New Byte() {
-                    &H1,
-                    &H2,
-                    &H74,
-                    &H62
-                },
-                0)
+            '====================================================
+            ' tb marker
+            '
+            ' 01 02 74 62 01
+            '====================================================
+            Dim tbMarker() As Byte = {
+            &H1,
+            &H2,
+            &H74,
+            &H62,
+            &H1
+        }
 
+            '====================================================
+            ' 找所有 tb
+            '====================================================
+            Dim tbPositions As New List(Of Integer)
 
-        If tbPos < 0 Then
+            Dim searchPos As Integer = 0
 
-            Return result
+            Do
 
-        End If
+                Dim foundPos As Integer =
+                FindBytes(
+                    data,
+                    tbMarker,
+                    searchPos)
 
+                If foundPos < 0 Then
+                    Exit Do
+                End If
 
-        '====================================================
-        ' 找：
-        '
-        ' 01 01 01 0A
-        '====================================================
-        Dim nameArea As Integer =
+                tbPositions.Add(foundPos)
+
+                searchPos =
+                foundPos + tbMarker.Length
+
+            Loop
+
+            '====================================================
+            ' 沒有 tb
+            '====================================================
+            If tbPositions.Count = 0 Then
+                Return result
+            End If
+
+            '====================================================
+            ' 從後往前找「真正的名稱區」
+            '
+            ' tb 後面的格式：
+            '
+            ' 01 02 74 62 01
+            ' [長度]
+            ' [內容]
+            '
+            ' FS_STK.DAT
+            ' FS_STK01.dat
+            ' ...
+            ' 都跳過
+            '
+            ' 最後的：
+            '
+            ' 多重潛力股
+            '
+            ' 才是名稱區
+            '====================================================
+            Dim nameTbPos As Integer = -1
+
+            For i As Integer =
+            tbPositions.Count - 1 To 0 Step -1
+
+                Dim tbPos As Integer =
+                tbPositions(i)
+
+                '------------------------------------------------
+                ' 長度 Byte
+                '------------------------------------------------
+                Dim contentLengthPos As Integer =
+                tbPos + 5
+
+                If contentLengthPos >= data.Length Then
+                    Continue For
+                End If
+
+                Dim contentLength As Integer =
+                data(contentLengthPos)
+
+                If contentLength <= 0 Then
+                    Continue For
+                End If
+
+                '------------------------------------------------
+                ' 內容開始
+                '------------------------------------------------
+                Dim contentStart As Integer =
+                tbPos + 6
+
+                Dim contentEnd As Integer =
+                contentStart + contentLength
+
+                If contentEnd > data.Length Then
+                    Continue For
+                End If
+
+                '------------------------------------------------
+                ' 讀取 tb 內容
+                '------------------------------------------------
+                Dim contentName As String =
+                Encoding.ASCII.GetString(
+                    data,
+                    contentStart,
+                    contentLength)
+
+                contentName =
+                contentName.Trim()
+
+                '------------------------------------------------
+                ' 如果是 FS_STK，就跳過
+                '------------------------------------------------
+                If contentName.StartsWith(
+                "FS_STK",
+                StringComparison.OrdinalIgnoreCase) Then
+
+                    Continue For
+
+                End If
+
+                '------------------------------------------------
+                ' 找到真正的名稱區
+                '------------------------------------------------
+                nameTbPos = tbPos
+
+                Exit For
+
+            Next
+
+            '====================================================
+            ' 找不到名稱區
+            '====================================================
+            If nameTbPos < 0 Then
+                Return result
+            End If
+
+            '====================================================
+            ' 找名稱區標記
+            '
+            ' 01 01 01 0A
+            '====================================================
+            Dim nameArea As Integer =
             FindBytes(
                 data,
                 New Byte() {
@@ -639,22 +797,18 @@ Module PotentialStock
                     &H1,
                     &HA
                 },
-                tbPos)
+                nameTbPos)
 
+            If nameArea < 0 Then
+                Return result
+            End If
 
-        If nameArea < 0 Then
-
-            Return result
-
-        End If
-
-
-        '====================================================
-        ' 找名稱列表開始：
-        '
-        ' 01 00
-        '====================================================
-        Dim listStart As Integer =
+            '====================================================
+            ' 找名稱列表開始
+            '
+            ' 01 00
+            '====================================================
+            Dim listStart As Integer =
             FindBytes(
                 data,
                 New Byte() {
@@ -663,109 +817,83 @@ Module PotentialStock
                 },
                 nameArea + 4)
 
+            If listStart < 0 Then
+                Return result
+            End If
 
-        If listStart < 0 Then
-
-            Return result
-
-        End If
-
-
-        '====================================================
-        ' 第一組名稱
-        '====================================================
-        Dim pos As Integer =
+            '====================================================
+            ' 第一組名稱
+            '====================================================
+            Dim namePos As Integer =
             listStart + 2
 
+            '====================================================
+            ' 最多 10 組
+            '====================================================
+            For i As Integer = 0 To 9
 
-        Dim encoding As Encoding =
-            Encoding.GetEncoding(950)
+                If namePos + 2 > data.Length Then
+                    Exit For
+                End If
 
+                '------------------------------------------------
+                ' 名稱資料必須以 01 開始
+                '------------------------------------------------
+                If data(namePos) <> &H1 Then
+                    Exit For
+                End If
 
-        '====================================================
-        ' 最多 10 組
-        '====================================================
-        For i As Integer = 0 To 9
+                '------------------------------------------------
+                ' 名稱長度
+                '------------------------------------------------
+                Dim nameLength As Integer =
+                data(namePos + 1)
 
+                If nameLength <= 0 Then
+                    Exit For
+                End If
 
-            If pos + 2 > data.Length Then
+                Dim nameStart As Integer =
+                namePos + 2
 
-                Exit For
-
-            End If
-
-
-            '------------------------------------------------
-            ' 名稱資料必須以 01 開始
-            '------------------------------------------------
-            If data(pos) <> &H1 Then
-
-                Exit For
-
-            End If
-
-
-            '------------------------------------------------
-            ' 第二個 Byte = 名稱 Byte 長度
-            '------------------------------------------------
-            Dim nameLength As Integer =
-                data(pos + 1)
-
-
-            If nameLength <= 0 OrElse
-               nameLength > 255 Then
-
-                Exit For
-
-            End If
-
-
-            '------------------------------------------------
-            ' 名稱開始
-            '------------------------------------------------
-            Dim nameStart As Integer =
-                pos + 2
-
-
-            Dim nameEnd As Integer =
+                Dim nameEnd As Integer =
                 nameStart + nameLength
 
+                If nameEnd > data.Length Then
+                    Exit For
+                End If
 
-            If nameEnd > data.Length Then
-
-                Exit For
-
-            End If
-
-
-            '------------------------------------------------
-            ' Big5 / CP950 解碼
-            '------------------------------------------------
-            Dim name As String =
+                '------------------------------------------------
+                ' CP950 / Big5
+                '------------------------------------------------
+                Dim name As String =
                 encoding.GetString(
                     data,
                     nameStart,
                     nameLength)
 
-
-            name =
+                name =
                 name.Trim()
 
+                If name <> "" Then
+                    result.Add(name)
+                End If
 
-            result.Add(name)
-
-
-            '------------------------------------------------
-            ' 下一組
-            '------------------------------------------------
-            pos =
+                '------------------------------------------------
+                ' 下一組
+                '------------------------------------------------
+                namePos =
                 nameEnd
 
+            Next
 
-        Next
+            Return result
 
+        Catch ex As Exception
 
-        Return result
+            Return result
+
+        End Try
 
     End Function
 
@@ -1281,9 +1409,12 @@ Module PotentialStock
 
 
             '====================================================
-            ' 必須至少有 10 組
+            ' 確認指定群組存在
+            '
+            ' 不要求一定要有 10 組
+            ' 實際有幾組就處理幾組
             '====================================================
-            If headers.Count < 10 Then
+            If groupIndex >= headers.Count Then
                 Return False
             End If
 
@@ -1297,18 +1428,26 @@ Module PotentialStock
 
             '====================================================
             ' 取得群組結束位置
+            '
+            ' ★ 不再寫死第 10 組
+            '
+            ' 如果後面還有下一組：
+            '     下一組的開始 = 目前群組的結束
+            '
+            ' 如果已經是最後一組：
+            '     使用檔案結尾
             '====================================================
             Dim groupEnd As Integer
 
-            If groupIndex < 9 Then
+            If groupIndex + 1 < headers.Count Then
 
                 groupEnd =
-                    headers(groupIndex + 1)
+        headers(groupIndex + 1)
 
             Else
 
                 groupEnd =
-                    data.Length
+        data.Length
 
             End If
 
